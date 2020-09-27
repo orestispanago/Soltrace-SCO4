@@ -1,0 +1,7 @@
+// Used to read sample working project properties to help with automation.lk
+
+open_project("3_all_mirrors.stinput");
+
+activestage("Array");
+outln(elementopt(0));
+outln(elementopt(1));

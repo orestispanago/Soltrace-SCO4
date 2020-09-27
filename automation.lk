@@ -1,0 +1,34 @@
+open_project("empty.stinput");
+outln(listoptics());
+sunopt({ x=0e+00, sigma=2.73, halfwidth=4.65,
+			y=0e+00, z=100, useldh=0e+00, lat=39.5, day=90, hour=10 });
+addoptic("mirror");
+opticopt("mirror",0,{dist="g",refracti=1.2, refl=1, refractr=1.1, apstop=3,
+					surfnum=1, difford=4, trans=1, errslope=0e+00, errspec=0e+00,
+					grating=[ 1.1, 1.2, 1.3, 1.4 ] });
+addoptic("absorber");
+opticopt("Absorber",0, {dist="g",refracti=1.2, refl=0e+00, refractr=1, apstop=3,
+						surfnum=1, difford=4, trans=0e+00, errslope=1e-05,
+						errspec=1e-05, grating=[ 1.1, 1.2, 1.3, 1.4 ]});
+addstage("Heliostat",  {virtual=0e+00, multihit=1, ax=0e+00, tracethrough=0e+00,
+						z=0e+00, ay=0e+00, x=0e+00, y=0e+00, az=10, zrot=0e+00});
+addelement(77);
+// cap
+elementopt(0,{en=1, y=0e+00, zrot=0e+00, x=0e+00, 
+			aper=[ "r", 0.25, 0.25, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
+			z=1.51, surf=[ "f", 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
+			ay=0e+00, ax=0e+00, az=0e+00, interact="reflection", optic="absorber", comment="cap" });
+
+// absorber
+elementopt(1,{en=1, y=0e+00, zrot=0e+00, x=0e+00, 
+			aper=[ "r", 0.2, 0.2, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
+			z=1.50, surf=[ "f", 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
+			ay=0e+00, ax=0e+00, az=0e+00, interact="reflection", optic="absorber", comment="absorber" });
+
+// mirror
+elementopt(2, { en=1, y=0e+00, zrot=0e+00, x=0.0943, 
+			aper=[ "r", 0.187, 0.14, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ], 
+			z=0e+00, surf=[ "f", 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ], 
+			ay=0e+00, ax=0e+00, az=3.002, interact="reflection", optic="mirror"});
+outln(nelements());
+outln(elementopt(2));
