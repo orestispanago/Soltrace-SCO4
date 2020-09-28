@@ -10,6 +10,10 @@ max_y = step_y*(num_y-1)/2;
 
 num_rays = 10000;
 
+z_abs = 1.5;
+theta_z = 0;
+
+
 open_project("empty.stinput");
 sunopt({ptsrc=0e+00, shape="p", x=0e+00, sigma=2.73, halfwidth=4.65, 
 		y=0e+00, z=100, useldh=0e+00, lat=39.5, day=90, hour=10, userdata=[  ]});
@@ -27,14 +31,19 @@ addelement(num_x*num_y+2);
 // cap
 elementopt(0,{en=1, y=0e+00, zrot=0e+00, x=0e+00, 
 			aper=[ "r", 0.201, 0.201, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
-			z=1.501, surf=[ "f", 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
+			z=z_abs+0.01, surf=[ "f", 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
 			ay=0e+00, ax=0e+00, az=0e+00, interact="reflection", optic="absorber", comment="cap" });
 
 // absorber
 elementopt(1,{en=1, y=0e+00, zrot=0e+00, x=0e+00, 
 			aper=[ "r", 0.2, 0.2, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
-			z=1.50, surf=[ "f", 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
+			z=z_abs, surf=[ "f", 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
 			ay=0e+00, ax=0e+00, az=0e+00, interact="reflection", optic="absorber", comment="absorber" });
+
+z_aim = define(x, y, theta_z){
+	return sqrt(x^2 + y^2)*tand((atand(z_abs/sqrt(x^2 + y^2)) + 90 - theta_z)/2);
+};
+
 
 // mirrors
 count = 0;
@@ -43,7 +52,7 @@ for (i=-max_y; i<=max_y; i=i+step_y){
 		elementopt(count+2, { en=1, y=i, zrot=0e+00, x=j, 
 			aper=[ "r", x, y, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ], 
 			z=0e+00, surf=[ "f", 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ], 
-			ay=0e+00, ax=0e+00, az=3.002, interact="reflection", optic="mirror"});
+			ay=0e+00, ax=0e+00, az=z_aim(i, j, theta_z), interact="reflection", optic="mirror"});
 		count++;
 	}
 }
@@ -76,3 +85,5 @@ overall_efficiency = nintersect(0, 1) / num_rays * 100;
 outln("Intercept factor: " + intercept_factor);
 outln("Overall efficiency: " + overall_efficiency);
 
+
+// outln(z_aim(0.09425, 0, 0));
