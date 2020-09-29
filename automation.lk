@@ -5,48 +5,61 @@ num_x = 7; // number of mirrors in x direction
 num_y = 11;
 step_x = x+space;
 step_y = y+space;
-max_x = step_x*(num_x-1);
-max_y = step_y*(num_y-1);
+max_x = step_x*(num_x-1)/2;
+max_y = step_y*(num_y-1)/2;
 
 num_rays = 100000;
 
-x_abs = 2.40;
+x_abs = 3;
 y_abs = 0.5;
 z_abs = 1.5;
 sun_z = 100;
-theta_z = 30;
+theta_z = 45;
 
 
 open_project("empty.stinput");
 sunopt({ptsrc=0e+00, shape="p", x=0e+00, sigma=2.73, halfwidth=4.65, 
-		y=tand(theta_z)*sun_z, z=sun_z, useldh=0e+00, lat=39.5, day=90, hour=10, userdata=[  ]});
+		y=tand(theta_z)*sun_z, z=sun_z, 
+		useldh=0e+00, lat=39.5, day=90, hour=10, userdata=[  ]});
 addoptic("mirror");
 opticopt("mirror",0,{dist="g",refracti=1.2, refl=1, refractr=1.1, apstop=3,
-					surfnum=1, difford=4, trans=1, errslope=0e+00, errspec=0e+00,
+					surfnum=1, difford=4, trans=1, 
+					errslope=0e+00, errspec=0e+00,
 					grating=[ 1.1, 1.2, 1.3, 1.4 ] });
 addoptic("absorber");
 opticopt("Absorber",0, {dist="g",refracti=1.2, refl=0e+00, refractr=1, apstop=3,
 						surfnum=1, difford=4, trans=0e+00, errslope=1e-05,
 						errspec=1e-05, grating=[ 1.1, 1.2, 1.3, 1.4 ]});
-addstage("Mirror array",  {virtual=0e+00, multihit=1, ax=0e+00, tracethrough=0e+00,
-						z=0e+00, ay=0e+00, x=0e+00, y=0e+00, az=10, zrot=0e+00});
+addstage("Mirror array",  {virtual=0e+00, multihit=1, ax=0e+00, 
+							tracethrough=0e+00, 
+							z=0e+00, ay=0e+00, x=0e+00, y=0e+00, 
+							az=10, zrot=0e+00});
 addelement(num_x*num_y+2);
 // cap
 elementopt(0,{en=1, y=0e+00, zrot=0e+00, x=0e+00, 
-			aper=[ "r", x_abs+0.001, y_abs+0.001, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
-			z=z_abs+0.001, surf=[ "f", 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
-			ay=0e+00, ax=0e+00, az=0e+00, interact="reflection", optic="absorber", comment="cap" });
+			aper=[ "r", x_abs+0.001, y_abs+0.001, 
+					0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
+			z=z_abs+0.001, 
+			surf=[ "f", 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
+			ay=0e+00, ax=0e+00, az=0e+00, 
+			interact="reflection", optic="absorber", comment="cap" });
 
 // absorber
 elementopt(1,{en=1, y=0e+00, zrot=0e+00, x=0e+00, 
-			aper=[ "r", x_abs, y_abs, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
-			z=z_abs, surf=[ "f", 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
-			ay=0e+00, ax=0e+00, az=0e+00, interact="reflection", optic="absorber", comment="absorber" });
+			aper=[ "r", x_abs, y_abs, 
+					0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
+			z=z_abs, 
+			surf=[ "f", 
+					0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ],
+			ay=0e+00, ax=0e+00, az=0e+00, 
+			interact="reflection", optic="absorber", comment="absorber" });
 
 z_aim = define(x, y, theta_z){
-	outln("y: "+y+"phi: "+atand(z_abs/y));
-	if(y<0) return sqrt(y^2)*tand((90 - theta_z + atand(z_abs/sqrt(y^2)))/2);
-	return sqrt( y^2)*tand((90 + theta_z + atand(z_abs/sqrt(y^2)))/2);
+	if(y<0) 
+		return -y*tand((90 - theta_z + atand(z_abs/(-y)))/2);
+	else if (y>0)
+		return y*tand((90 + theta_z + atand(z_abs/y))/2);
+	return 1;
 };
 
 
@@ -54,15 +67,18 @@ z_aim = define(x, y, theta_z){
 count = 0;
 for (i=-max_y; i<=max_y; i=i+step_y){
 	for (j=-max_x; j<=max_x; j=j+step_x){
-		elementopt(count+2, { en=1, y=i, zrot=0e+00, x=j, 
-			aper=[ "r", x, y, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ], 
-			z=0e+00, surf=[ "f", 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ], 
-			ay=0e+00, ax=0e+00, az=z_aim(j, i, theta_z), interact="reflection", optic="mirror"});
+		elementopt(count+2, 
+					{ en=1, y=i, zrot=0e+00, x=j, 
+						aper=[ "r", x, y, 
+								0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ], 
+			z=0e+00, 
+			surf=[ "f",
+					0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00, 0e+00 ], 
+			ay=0e+00, ax=0e+00, az=z_aim(j, i, theta_z), 
+			interact="reflection", optic="mirror"});
 		count++;
 	}
 }
-// TODO add function to calculate aimpoint
-// see here: https://github.com/orestispanago/Tracking/blob/master/trace2csv.lk
 
 save_raydata = define(fname){
 	arr[0] = ['x','y','z','cosx','cosy','cosz','element','stage','raynum'];
@@ -89,6 +105,3 @@ overall_efficiency = nintersect(0, 1) / num_rays * 100;
 
 outln("Intercept factor: " + intercept_factor);
 outln("Overall efficiency: " + overall_efficiency);
-
-
-// outln(z_aim(0.09425, 0, 0));
