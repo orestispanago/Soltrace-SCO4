@@ -1,0 +1,21 @@
+scale = define(number, vector){
+	for (i=0; i<3; i++){
+		newvector[i] = vector[i]*number;
+	}
+	return newvector;
+};
+
+substract = define(vector1, vector2){
+	for (i=0; i<3; i++){
+		newvector[i] = vector1[i] - vector2[i];
+	}
+	return newvector;
+}; 
+i = -0.71;
+j = -0.426;
+
+q = [sun_x,sun_y,sun_z];
+p = [j,i,0];
+q_p = substract(q,p);
+n = [1,0,0];
+q_proj = substract(q, scale(dot(q_p, n), n));
